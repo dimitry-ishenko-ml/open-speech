@@ -12,6 +12,7 @@ setuptools.setup(name="open_speech",
     long_description_content_type="text/markdown",
     url="https://github.com/dimitry-ishenko-ml/open-speech",
     packages=setuptools.find_packages(),
+    install_requires=[ "pandas", "tensorflow" ],
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
