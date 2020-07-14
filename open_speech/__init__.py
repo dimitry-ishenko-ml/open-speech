@@ -101,9 +101,10 @@ class Datasets:
         return self.train.files() + self.valid.files() + self.test.files()
 
 ####################
-common_voice_en = Dataset("common-voice/en", "train", "dev", "test")
+common_voice_en = Dataset(name="common-voice/en", train="train", valid="dev", test="test")
+voxforge_en = Dataset(name="voxforge/en", train="train", valid="valid", test="test")
 
-datasets = Datasets([ common_voice_en ])
+datasets = Datasets([ common_voice_en, voxforge_en ])
 
 train = datasets.train
 test  = datasets.test
