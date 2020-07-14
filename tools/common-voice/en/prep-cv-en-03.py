@@ -1,12 +1,9 @@
 #!/usr/bin/python3
 
-# This script will shard sentences contained in `dev.json`, `test.json` and
-# `train.json` files, as well as matching WAV files in the `audio_path`
-# directory into TFRecord files that can be read by `tf.data.TFRecordDataset`.
+# Shard sentences and their matching WAV files into TFRecord files.
 #
-# There are a number of files in the dataset that have long silence at the end,
-# which may (and most likely will, as it did for me) cause OOM problem during
-# training. Thus, long audio files will be trimmed to 15 seconds.
+# Some files in the dataset have long silence at the end, which may cause OOM
+# during training. These files will be trimmed to 15 seconds.
 
 import numpy as np
 import os
@@ -57,7 +54,7 @@ def write_shard(shard, tfrec_name):
             example = tf.train.Example(features=tf.train.Features(feature={
                 "audio"   : float_feature(audio),
                 "sentence": bytes_feature([sentence.encode("utf-8")]),
-                "original": bytes_feature([original.encode("utf-8")]) 
+                "original": bytes_feature([original.encode("utf-8")])
             }))
             file.write(record=example.SerializeToString())
 

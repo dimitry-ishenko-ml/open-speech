@@ -1,15 +1,13 @@
 #!/usr/bin/python3
 
-# Collect and clean up all sentences found in extracted archives.
+# Collect and clean up sentences found in extracted archives and save them in
+# JSON format.
 #
 # The clean-up consists of:
 # - where appropriate, convert unicode characters to their ASCII equivalents;
 # - convert all characters to lower case;
 # - remove all punctuation except for `'` (apostrophe);
 # - verify matching WAV file exists in the `audio_path` directory.
-#
-# Processed is saved in JSON format (with "table" orient) in the `dataset.json`
-# file.
 
 import pandas as pd
 
