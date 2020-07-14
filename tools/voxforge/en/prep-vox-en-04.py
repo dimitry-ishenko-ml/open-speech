@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-# Collect and clean up sentences found in extracted archives and save them in
-# JSON format.
+# Collect and clean up sentences found in extracted archives, split them into
+# training, validation and test sets and save in JSON format.
 #
 # The clean-up consists of:
 # - where appropriate, convert unicode characters to their ASCII equivalents;
@@ -9,6 +9,7 @@
 # - remove all punctuation except for `'` (apostrophe);
 # - verify matching WAV file exists in the `audio_path` directory.
 
+import numpy as np
 import pandas as pd
 
 from pathlib import Path
@@ -19,21 +20,17 @@ vox_path = "~/tensorflow_datasets/manual/voxforge/en"
 vox_path = Path(vox_path).expanduser()
 
 extracted_path = vox_path / "extracted"
-json_path= extracted_path / "dataset.json"
+
+data_names = [ "train.json", "valid.json", "test.json" ]
+data_probs = [ .8, .1, .1 ]
 
 arch_paths = extracted_path.glob("*")
 prompt_names = [
     "prompts-original",
-    "prompt.txt",
-    "prompts.txt",
-    "cc.prompts",
-    "Transcriptions.txt",
-    "therainbowpassage.prompt",
-    "a13.text",
-    "rp.text",
+    "prompt.txt", "prompts.txt", "cc.prompts", "therainbowpassage.prompt",
+    "Transcriptions.txt", "a13.text", "rp.text",
     "PROMPTS",
 ]
-
 remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
 
 def clean(sentence):
@@ -89,8 +86,15 @@ for arch_path in tqdm(list(arch_paths)):
     if arch_path.is_dir():
         rows += read_data(arch_path)
 
-data = pd.DataFrame(rows)
-print("Total examples:", len(data))
+data_all = pd.DataFrame(rows)
+print("Total examples:", len(data_all))
 
-print("Saving to:", json_path)
-data.to_json(json_path, orient="table")
+print()
+indices = np.random.choice(len(data_probs), size=len(data_all), p=data_probs)
+
+for n in range(len(data_names)):
+    json_path = extracted_path / data_names[n]
+    data = data_all[indices == n]
+
+    print("Saving:", json_path)
+    data.to_json(json_path, orient="table")
