@@ -102,21 +102,9 @@ hist = model.fit(x=train_dataset,
 
 Following datasets are currently included in the collection:
 
-## Mozilla Common Voice Dataset
+- [Mozilla Common Voice Dataset (`cv-corpus-4-2019-12-10`)](https://voice.mozilla.org/en/datasets)
 
-This is Mozilla Common Voice English dataset version `cv-corpus-4-2019-12-10`
-downloaded from [voice.mozilla.org](https://voice.mozilla.org/en/datasets).
-
-Structure:
-```
-+-- common-voice/en
-|   +-- train-????-of-????.tfrec    # training set
-|   +-- train.json                  # training set metadata
-|   +-- dev-????-of-????.tfrec      # validation set
-|   +-- dev.json                    # validation set metadata
-|   +-- test-????-of-????.tfrec     # test set
-|   +-- test.json                   # test set metadata
-```
+- [VoxForge](http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Main/16kHz_16bit/)
 
 ## Authors
 
