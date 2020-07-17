@@ -26,7 +26,10 @@ if [[ -n "$failed" ]]; then
     echo
 fi
 
-extra=$((find $files_path -name '*.tgz' -printf '%P\n'; cat "$index_path" "$index_path") | sort | uniq -u)
+extra=$((
+    find $files_path -name '*.tgz' -printf '%P\n'
+    cat "$index_path" "$index_path"
+) | sort | uniq -u)
 if [[ -n "$extra" ]]; then
     echo "Extra files:"
     echo "$extra"
