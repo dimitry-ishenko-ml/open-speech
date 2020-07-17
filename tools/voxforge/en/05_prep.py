@@ -42,21 +42,18 @@ def clean(sentence):
 
 def read_data(arch_path):
     audio_path = arch_path / "wav"
-    if not audio_path.exists(): audio_path = arch_path / "flac"
-
     if not audio_path.exists():
-        print("Missing audio dir:", arch_path)
-        return []
+        return [], ["Missing audio dir: " + str(arch_path)]
 
     for name in prompt_names:
         prompt_path = arch_path / "etc" / name
         if prompt_path.exists(): break
 
     if not prompt_path.exists():
-        print("Missing prompts:", arch_path)
-        return []
+        return [], ["Missing prompts: " + str(arch_path)]
 
     rows = []
+    errors = []
     with open(prompt_path) as file:
         for row in file.read().splitlines():
 
@@ -69,7 +66,7 @@ def read_data(arch_path):
 
             path = extracted_path / name
             if not path.exists():
-                print("Missing file:", path)
+                errors.append("Missing file: " + str(path))
 
             else: rows.append({
                 "path"    : str(name),
@@ -78,20 +75,27 @@ def read_data(arch_path):
                 "size"    : path.stat().st_size
             })
 
-    return rows
+    return rows, errors
 
-rows = []
-print("Processing archives:")
+rows_all = []
+errors_all = []
+print("Processing:")
 for arch_path in tqdm(list(arch_paths)):
     if arch_path.is_dir():
-        rows += read_data(arch_path)
+        rows, errors = read_data(arch_path)
+        rows_all += rows
+        errors_all += errors
 
-data_all = pd.DataFrame(rows)
+data_all = pd.DataFrame(rows_all)
 print("Total examples:", len(data_all))
 
-print()
+if len(errors_all):
+    print("\nErrors:")
+    for error in errors_all: print(error)
+
 indices = np.random.choice(len(data_probs), size=len(data_all), p=data_probs)
 
+print()
 for n in range(len(data_names)):
     json_path = extracted_path / data_names[n]
     data = data_all[indices == n]
