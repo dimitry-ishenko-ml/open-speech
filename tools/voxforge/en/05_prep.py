@@ -33,6 +33,8 @@ prompt_names = [
 ]
 remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
 
+max_size = int(20 * 16000 * 2 * 1.05) # 20s @ 16kHz, 16-bit + 5%
+
 def clean(sentence):
     sentence = unidecode(sentence)
     sentence = sentence.strip()
@@ -68,12 +70,17 @@ def read_data(arch_path):
             if not path.exists():
                 errors.append("Missing file: " + str(path))
 
-            else: rows.append({
-                "path"    : str(name),
-                "sentence": sentence,
-                "original": original,
-                "size"    : path.stat().st_size
-            })
+            else:
+                size = path.stat().st_size
+                if size > max_size:
+                    errors.append("Long file: " + str(path))
+
+                else: rows.append({
+                    "path"    : str(name),
+                    "size"    : size,
+                    "sentence": sentence,
+                    "original": original,
+                })
 
     return rows, errors
 
