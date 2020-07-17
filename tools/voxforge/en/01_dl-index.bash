@@ -12,7 +12,14 @@ mkdir -p "$files_path"
 
 index_path="$files_path/index"
 
-echo "Downloading:"
-wget -cO- "$download_url" | sed -nr 's/^.*href="([^"]*\.tgz)".*$/\1/p' | sort > "$index_path"
-echo
+bad_cookies=(
+    "tech-20131002-oms.tgz"
+    "anonymous-20100901-mic.tgz"
+)
 
+echo "Downloading:"
+(
+    wget -cO- "$download_url" | sed -nr 's/^.*href="([^"]*\.tgz)".*$/\1/p'
+    printf "%s\n" "${bad_cookies[@]}"
+) | sort | uniq -u > "$index_path"
+echo
