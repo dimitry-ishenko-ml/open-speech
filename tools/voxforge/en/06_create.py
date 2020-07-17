@@ -24,7 +24,7 @@ data_path = vox_path / "data"
 data_path.mkdir(parents=True, exist_ok=True)
 
 sample_rate = 16000 # 16kHz
-max_audio_len = 15 * sample_rate # 15s
+max_audio_len = 20 * sample_rate # 20s
 max_audio_size = 2 * max_audio_len # 2 == 16bit
 
 max_shard_size = 200 * (1024 ** 2) # 200MB
@@ -47,7 +47,7 @@ def write_shard(shard, tfrec_name):
     tfrec_path = data_path / tfrec_name
     with tf.io.TFRecordWriter(path=str(tfrec_path)) as file:
         done = []
-        for path, sentence, original, size in shard.itertuples(index=False):
+        for path, size, sentence, original in shard.itertuples(index=False):
             path = extracted_path / path
             audio = read_audio(path)[ : max_audio_len] # trim long audio
 
@@ -86,6 +86,7 @@ for json_name in json_names:
     data = pd.read_json(audio_json, orient="table")
     print("Total examples:", len(data))
 
+    print("Shuffling:")
     data = data.sample(frac=1)
 
     # files are going to be trimmed inside write_shard(),
