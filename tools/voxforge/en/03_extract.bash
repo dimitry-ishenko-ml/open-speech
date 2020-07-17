@@ -26,3 +26,13 @@ if [[ -n "$failed" ]]; then
     echo "$failed"
     echo
 fi
+
+extra=$((
+    find $extracted_path -mindepth 1 -maxdepth 1 -type d -printf '%P\n'
+    cat "$index_path" "$index_path" | sed "s/.tgz$//"
+) | sort | uniq -u)
+if [[ -n "$extra" ]]; then
+    echo "Extra archives:"
+    echo "$extra"
+    echo
+fi
