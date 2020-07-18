@@ -3,7 +3,7 @@
 # Shard sentences and their matching WAV files into TFRecord files.
 #
 # Some files in the dataset have long silence at the end, which may cause OOM
-# during training. These files will be trimmed to 15 seconds.
+# during training. These files will be trimmed to `max_audio_len` seconds.
 
 import numpy as np
 import os
