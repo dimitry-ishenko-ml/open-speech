@@ -13,7 +13,7 @@ echo
 
 echo "Converting:"
 find "$extracted_path" -name "*.flac" | sed "s/\.flac$//" | sort | xargs -P`nproc` -I{} -n1 \
-    sh -c 'basename "{}"; ffmpeg -v 16 -i "{}.flac" -ar 16000 -ac 1 -c:a pcm_s16le "{}.wav" -y && rm "{}.flac"'
+    sh -c "basename '{}'; ffmpeg -v 16 -i '{}.flac' -ar 16000 -ac 1 -c:a pcm_s16le '{}.wav' -y && rm '{}.flac'"
 echo
 
 failed=$(find "$extracted_path" -name "*.flac")
