@@ -11,12 +11,14 @@ find "$extracted_path" -type d -name "flac" | sort | \
     xargs -P`nproc` -I{} -n1 sh -c 'basename $(dirname "{}"); mv "{}" $(dirname "{}")/wav'
 echo
 
+not_done() { find "$extracted_path" -name "*.flac" | sort; }
+
 echo "Converting:"
-find "$extracted_path" -name "*.flac" | sed "s/\.flac$//" | sort | xargs -P`nproc` -I{} -n1 \
+not_done | sed "s/\.flac$//" | xargs -P`nproc` -I{} -n1 \
     sh -c "basename '{}'; ffmpeg -v 16 -i '{}.flac' -ar 16000 -ac 1 -c:a pcm_s16le '{}.wav' -y && rm '{}.flac'"
 echo
 
-failed=$(find "$extracted_path" -name "*.flac")
+failed=$(not_done)
 if [[ -n "$failed" ]]; then
     echo "Conversion failed:"
     echo "$failed"
