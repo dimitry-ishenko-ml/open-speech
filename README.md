@@ -106,6 +106,8 @@ Following datasets are currently included in the collection:
 
 - [VoxForge](http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Main/16kHz_16bit/)
 
+- [LibriSpeech](http://www.openslr.org/12)
+
 ## Authors
 
 * **Dimitry Ishenko** - dimitry (dot) ishenko (at) (gee) mail (dot) com
