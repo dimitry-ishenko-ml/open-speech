@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Extract [LibreSpeech](http://www.openslr.org/12) dataset.
+# Extract [LibriSpeech](http://www.openslr.org/12) dataset.
 
 ####################
-libre_path="$HOME/tensorflow_datasets/manual/librespeech/en"
-download_path="$libre_path"
+libri_path="$HOME/tensorflow_datasets/manual/librispeech/en"
+download_path="$libri_path"
 
-extracted_path="$libre_path/extracted"
+extracted_path="$libri_path/extracted"
 mkdir -p "$extracted_path"
 
 paths=$(find "$download_path" -maxdepth 1 -name '*.tar.gz')
