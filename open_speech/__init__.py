@@ -103,8 +103,9 @@ class Datasets:
 ####################
 common_voice_en = Dataset(name="common-voice/en", train="train", valid="dev", test="test")
 voxforge_en = Dataset(name="voxforge/en", train="train", valid="valid", test="test")
+librispeech_en = Dataset(name="librispeech/en", train="train", valid="valid", test="test")
 
-datasets = Datasets([ common_voice_en, voxforge_en ])
+datasets = Datasets([ common_voice_en, voxforge_en, librispeech_en ])
 
 train = datasets.train
 test  = datasets.test
