@@ -45,13 +45,13 @@ class DatasetSplit:
 
 ####################
 class Dataset:
-    def __init__(self, name, train=None, valid=None, test=None):
+    def __init__(self, name, path):
         self.name = name
-        self.path = "gs://open-speech/" + name
+        self.path = "gs://open-speech/" + path
 
-        self.train = DatasetSplit(self.path, train)
-        self.test  = DatasetSplit(self.path,  test)
-        self.valid = DatasetSplit(self.path, valid)
+        self.train = DatasetSplit(self.path, "train")
+        self.test  = DatasetSplit(self.path,  "test")
+        self.valid = DatasetSplit(self.path, "valid")
 
     def size(self): return len(self.train) + len(self.valid) + len(self.test)
     def __len__(self): return self.size()
@@ -101,11 +101,11 @@ class Datasets:
         return self.train.files() + self.valid.files() + self.test.files()
 
 ####################
-common_voice_en = Dataset(name="common-voice/en", train="train", valid="dev", test="test")
-voxforge_en = Dataset(name="voxforge/en", train="train", valid="valid", test="test")
-librispeech_en = Dataset(name="librispeech/en", train="train", valid="valid", test="test")
+common_voice = Dataset(name="common_voice", path="common-voice/en")
+voxforge     = Dataset(name="voxforge"    , path="voxforge/en"    )
+librispeech  = Dataset(name="librispeech" , path="librispeech/en" )
 
-datasets = Datasets([ common_voice_en, voxforge_en, librispeech_en ])
+datasets = Datasets([ common_voice, voxforge, librispeech ])
 
 train = datasets.train
 test  = datasets.test

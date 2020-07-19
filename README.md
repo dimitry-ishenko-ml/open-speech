@@ -76,10 +76,10 @@ for dataset in open_speech.datasets:
 
 Use an individual dataset:
 ```python
-from open_speech import common_voice_en
+from open_speech import common_voice
 import tensorflow as tf
 
-print("Dataset:", common_voice_en.name)
+print("Dataset:", common_voice.name)
 
 def transform(dataset):
     # use open_speech.parse_example() to de-serialize examples;
@@ -91,8 +91,8 @@ def transform(dataset):
     dataset = dataset.prefetch(2)
     return dataset
 
-train_dataset = transform( common_voice_en.train.dataset() )
-valid_dataset = transform( common_voice_en.valid.dataset() )
+train_dataset = transform( common_voice.train.dataset() )
+valid_dataset = transform( common_voice.valid.dataset() )
 
 hist = model.fit(x=train_dataset,
     validation_data=valid_dataset,
