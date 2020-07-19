@@ -102,7 +102,7 @@ hist = model.fit(x=train_dataset,
 
 Following datasets are currently included in the collection:
 
-- [Mozilla Common Voice Dataset (`cv-corpus-4-2019-12-10`)](https://voice.mozilla.org/en/datasets)
+- [Mozilla Common Voice Dataset (`cv-corpus-5.1-2020-06-22`)](https://voice.mozilla.org/en/datasets)
 
 - [VoxForge](http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Main/16kHz_16bit/)
 
