@@ -28,7 +28,12 @@ class DatasetSplit:
         if self._meta is None and self.name is not None:
             path = self.path + "/" + self.name + ".json"
             with _BytesIO(_tf.io.read_file(path).numpy()) as file:
-                self._meta = _pd.read_json(file, orient="table")
+                meta = _pd.read_json(file, orient="table")
+                index = meta.index
+                self._meta = meta.set_index(_pd.MultiIndex.from_tuples(
+                    [ (self.path + "/" + path, num) for path, num in index ],
+                    names=index.names)
+                )
         return self._meta if self._meta is not None else _pd.DataFrame()
 
     def size(self): return len(self._get_meta())
@@ -37,7 +42,7 @@ class DatasetSplit:
     def meta(self): return self._get_meta().copy()
 
     def files(self):
-        paths = self.path + "/" + self._get_meta().index.unique(level=0)
+        paths = self._get_meta().index.unique(level=0)
         return paths.to_list()
 
     def dataset(self, num_parallel_reads=_tf.data.experimental.AUTOTUNE):
