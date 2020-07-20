@@ -52,7 +52,7 @@ class DatasetSplit:
 class Dataset:
     def __init__(self, name, path):
         self.name = name
-        self.path = "gs://open-speech/" + path
+        self.path = path
 
         self.train = DatasetSplit(self.path, "train")
         self.test  = DatasetSplit(self.path,  "test")
@@ -106,9 +106,9 @@ class Datasets:
         return self.train.files() + self.valid.files() + self.test.files()
 
 ####################
-common_voice = Dataset(name="common_voice", path="common-voice/en")
-voxforge     = Dataset(name="voxforge"    , path="voxforge/en"    )
-librispeech  = Dataset(name="librispeech" , path="librispeech/en" )
+common_voice = Dataset(name="common_voice", path="gs://common-voice-en")
+voxforge     = Dataset(name="voxforge"    , path="gs://voxforge-en"    )
+librispeech  = Dataset(name="librispeech" , path="gs://librispeech-en" )
 
 datasets = Datasets([ common_voice, voxforge, librispeech ])
 
