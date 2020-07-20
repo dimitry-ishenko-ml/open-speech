@@ -4,7 +4,7 @@ with open("README.md", "r") as file:
     long_description = file.read()
 
 setuptools.setup(name="open_speech",
-    version="4.1",
+    version="4.2",
     author="Dimitry Ishenko",
     author_email="dimitry.ishenko@gmail.com",
     description="Open Speech Datasets",
