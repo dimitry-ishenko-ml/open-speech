@@ -25,7 +25,7 @@ audio_path = cv_path / "audio"
 
 remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
 
-max_size = int(20 * 16000 * 2 * 1.05) # 20s @ 16kHz, 16-bit + 5%
+max_size = 680000 # 21.25s @ 16kHz, 16-bit
 
 def clean(sentence):
     sentence = unidecode(sentence)

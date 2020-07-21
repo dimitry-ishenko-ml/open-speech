@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
 # Shard sentences and their matching WAV files into TFRecord files.
-#
-# Some files in the dataset have long silence at the end, which may cause OOM
-# during training. These files will be trimmed to `max_audio_len` seconds.
 
 import numpy as np
 import os
@@ -23,11 +20,7 @@ json_names = [ "train.json", "valid.json", "test.json" ]
 data_path = vox_path / "data"
 data_path.mkdir(parents=True, exist_ok=True)
 
-sample_rate = 16000 # 16kHz
-max_audio_len = 20 * sample_rate # 20s
-max_audio_size = 2 * max_audio_len # 2 == 16bit
-
-max_shard_size = 200 * (1024 ** 2) # 200MB
+max_shard_size = 256 * (1024 ** 2) # 256MB
 
 def bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=value))
@@ -48,8 +41,7 @@ def write_shard(shard, tfrec_name):
     with tf.io.TFRecordWriter(path=str(tfrec_path)) as file:
         done = []
         for path, size, sentence, original in shard.itertuples(index=False):
-            path = extracted_path / path
-            audio = read_audio(path)[ : max_audio_len] # trim long audio
+            audio = read_audio(extracted_path / path)
 
             example = tf.train.Example(features=tf.train.Features(feature={
                 "audio"   : float_feature(audio),
@@ -71,9 +63,7 @@ def write_data(data, tfrec_templ, files_per_shard):
     indices, shards = zip(*groups)
     tfrec_names = [ tfrec_templ.format(index, total) for index in indices ]
 
-    # we are I/O-bound, so using more than 2 workers won't be of much use;
-    # in fact, it may cause slowdown due to multiple concurrent R/W
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    with ThreadPoolExecutor(max_workers=8) as pool:
         dones = list(tqdm(pool.map(write_shard, shards, tfrec_names), total=total))
 
     return pd.concat(dones)
@@ -89,9 +79,7 @@ for json_name in json_names:
     print("Shuffling:")
     data = data.sample(frac=1)
 
-    # files are going to be trimmed inside write_shard(),
-    # so we need to "clip" their size, when computing median
-    median_audio_size = data["size"].clip(upper=max_audio_size).median()
+    median_audio_size = data["size"].median()
     print("Median audio file size:", median_audio_size)
 
     # audio is going to be converted to float32 by tf.audio.decode_wav(),
