@@ -106,9 +106,9 @@ class Datasets:
         return self.train.files() + self.valid.files() + self.test.files()
 
 ####################
-common_voice = Dataset(name="common_voice", path="gs://common-voice-en")
-voxforge     = Dataset(name="voxforge"    , path="gs://voxforge-en"    )
-librispeech  = Dataset(name="librispeech" , path="gs://librispeech-en" )
+common_voice = Dataset(name="common_voice", path="gs://open-speech/common-voice/en")
+voxforge     = Dataset(name="voxforge"    , path="gs://open-speech/voxforge/en"    )
+librispeech  = Dataset(name="librispeech" , path="gs://open-speech/librispeech/en" )
 
 datasets = Datasets([ common_voice, voxforge, librispeech ])
 
