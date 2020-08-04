@@ -5,11 +5,13 @@
 import numpy as np
 import os
 import pandas as pd
+import pickle
 import tensorflow as tf
 
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from tqdm.auto import tqdm
+from uuid import uuid1
 
 vox_path = "~/tensorflow_datasets/manual/voxforge/en"
 vox_path = Path(vox_path).expanduser()
@@ -21,6 +23,13 @@ data_path = vox_path / "data"
 data_path.mkdir(parents=True, exist_ok=True)
 
 max_shard_size = 256 * (1024 ** 2) # 256MB
+
+metadata = {
+    "name": "voxforge",
+    "license": "GPL-3",
+    "sample_rate": 16000,
+    "dtype": tf.float32,
+}
 
 def bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=value))
@@ -39,22 +48,20 @@ def read_audio(path):
 def write_shard(shard, tfrec_name):
     tfrec_path = data_path / tfrec_name
     with tf.io.TFRecordWriter(path=str(tfrec_path)) as file:
-        done = []
-        for path, size, sentence, original in shard.itertuples(index=False):
+        done = {}
+        for path, size, label in shard.itertuples(index=False):
             audio = read_audio(extracted_path / path)
+            uuid = str(uuid1())
 
             example = tf.train.Example(features=tf.train.Features(feature={
-                "audio"   : float_feature(audio),
-                "sentence": bytes_feature([sentence.encode("utf-8")]),
-                "original": bytes_feature([original.encode("utf-8")])
+                "uuid": bytes_feature([uuid.encode("utf-8")]),
+                "audio": float_feature(audio),
             }))
             file.write(record=example.SerializeToString())
 
-            done.append({ "sentence": sentence, "original": original })
+            done.update({ uuid: label })
 
-    return pd.DataFrame(done, index=pd.MultiIndex.from_product(
-        [[tfrec_name], range(len(done))], names=["path", "#"]
-    ))
+    return done
 
 def write_data(data, tfrec_templ, files_per_shard):
     groups = data.groupby(np.arange(len(data)) // files_per_shard)
@@ -66,11 +73,13 @@ def write_data(data, tfrec_templ, files_per_shard):
     with ThreadPoolExecutor(max_workers=8) as pool:
         dones = list(tqdm(pool.map(write_shard, shards, tfrec_names), total=total))
 
-    return pd.concat(dones)
+    labels = { uuid: label for done in dones for uuid, label in done.items() }
+
+    return tfrec_names, labels
 
 for json_name in json_names:
     audio_json = extracted_path / json_name
-    data_json = data_path / json_name
+    metadata_pickle = (data_path / json_name).with_suffix(".pickle")
 
     print("\nReading:", audio_json)
     data = pd.read_json(audio_json, orient="table")
@@ -88,8 +97,12 @@ for json_name in json_names:
     print("Audio files per shard:", files_per_shard)
 
     print("Writing data to shards:")
-    tfrec_templ = data_json.stem + "-{:04d}-of-{:04d}.tfrec"
-    dones = write_data(data, tfrec_templ, files_per_shard)
+    tfrec_templ = metadata_pickle.stem + "-{:04d}-of-{:04d}.tfrec"
+    files, labels = write_data(data, tfrec_templ, files_per_shard)
 
-    print("Saving metadata to:", data_json)
-    dones.to_json(data_json, orient="table")
+    metadata["files"] = files
+    metadata["labels"] = labels
+
+    print("Saving metadata to:", metadata_pickle)
+    with open(metadata_pickle, "wb") as file:
+        pickle.dump(metadata, file)

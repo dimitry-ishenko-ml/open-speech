@@ -1,20 +1,14 @@
 #!/usr/bin/python3
 
-# Collect and clean up sentences found in extracted archives, split them into
-# training, validation and test sets and save in JSON format.
-#
-# The clean-up consists of:
-# - where appropriate, convert unicode characters to their ASCII equivalents;
-# - convert all characters to lower case;
-# - remove all punctuation except for `'` (apostrophe);
-# - verify matching WAV file exists in the `audio_path` directory.
+# Collect sentences found in extracted archives, split them into training,
+# validation and test sets, verify they have matching WAV files in the
+# `audio_path` directory and save in JSON format.
 
 import numpy as np
 import pandas as pd
 
 from pathlib import Path
 from tqdm.auto import tqdm
-from unidecode import unidecode
 
 vox_path = "~/tensorflow_datasets/manual/voxforge/en"
 vox_path = Path(vox_path).expanduser()
@@ -31,16 +25,8 @@ prompt_names = [
     "Transcriptions.txt", "a13.text", "rp.text",
     "PROMPTS",
 ]
-remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
 
 max_size = 680000 # 21.25s @ 16kHz, 16-bit
-
-def clean(sentence):
-    sentence = unidecode(sentence)
-    sentence = sentence.strip()
-    sentence = sentence.lower()
-    sentence = sentence.translate(remove_table)
-    return sentence
 
 def read_data(arch_path):
     audio_path = arch_path / "wav"
@@ -59,13 +45,11 @@ def read_data(arch_path):
     with open(prompt_path) as file:
         for row in file.read().splitlines():
 
-            try: name, original = row.split(" ", 1)
+            try: name, label = row.split(" ", 1)
             except: continue
 
             name = Path(name).name + ".wav"
             name = audio_path.relative_to(extracted_path) / name
-            sentence = clean(original)
-
             path = extracted_path / name
             if not path.exists():
                 errors.append("Missing file: " + str(path))
@@ -76,10 +60,7 @@ def read_data(arch_path):
                     errors.append("Long file: " + str(path))
 
                 else: rows.append({
-                    "path"    : str(name),
-                    "size"    : size,
-                    "sentence": sentence,
-                    "original": original,
+                    "path" : str(name), "size" : size, "label": label,
                 })
 
     return rows, errors
