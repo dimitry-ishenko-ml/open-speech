@@ -1,20 +1,14 @@
 #!/usr/bin/python3
 
-# Collect and clean up sentences found in extracted dev, test and train archives
-# and save them in JSON format.
-#
-# The clean-up consists of:
-# - where appropriate, convert unicode characters to their ASCII equivalents;
-# - convert all characters to lower case;
-# - remove all punctuation except for `'` (apostrophe);
-# - verify matching WAV file exists in the `audio_path` directory.
+# Collect sentences found in extracted dev, test and train archives, verify they
+# have matching WAV files in the `audio_path` directory and save them in JSON
+# format.
 
 import numpy as np
 import pandas as pd
 
 from pathlib import Path
 from tqdm.auto import tqdm
-from unidecode import unidecode
 
 libri_path = "~/tensorflow_datasets/manual/librispeech/en"
 libri_path = Path(libri_path).expanduser()
@@ -25,16 +19,8 @@ parts = {
     "valid.json": [  "dev-clean" ],
     "test.json" : [ "test-clean" ],
 }
-remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
 
 max_size = 680000 # 21.25s @ 16kHz, 16-bit
-
-def clean(sentence):
-    sentence = unidecode(sentence)
-    sentence = sentence.strip()
-    sentence = sentence.lower()
-    sentence = sentence.translate(remove_table)
-    return sentence
 
 def read_data(trans_path):
     audio_path = trans_path.parent.relative_to(extracted_path)
@@ -44,12 +30,10 @@ def read_data(trans_path):
     with open(trans_path) as file:
         for row in file.read().splitlines():
 
-            try: name, original = row.split(" ", 1)
+            try: name, label = row.split(" ", 1)
             except: continue
 
             name = audio_path / (name + ".wav")
-            sentence = clean(original)
-
             path = extracted_path / name
             if not path.exists():
                 errors.append("Missing file: " + str(path))
@@ -60,10 +44,7 @@ def read_data(trans_path):
                     errors.append("Long file: " + str(path))
 
                 else: rows.append({
-                    "path"    : str(name),
-                    "size"    : size,
-                    "sentence": sentence,
-                    "original": original,
+                    "path" : str(name), "size" : size, "label": label,
                 })
 
     return rows, errors
