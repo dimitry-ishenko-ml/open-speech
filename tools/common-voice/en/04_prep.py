@@ -1,19 +1,13 @@
 #!/usr/bin/python3
 
-# Collect and clean up sentences contained in the `{dev,test,train}.tsv` files
-# and save them in JSON format.
-#
-# The clean-up consists of:
-# - where appropriate, convert unicode characters to their ASCII equivalents;
-# - convert all characters to lower case;
-# - remove all punctuation except for `'` (apostrophe);
-# - verify matching WAV file exists in the `audio_path` directory.
+# Collect sentences contained in the `{dev,test,train}.tsv` files, verify they
+# have matching WAV files in the `audio_path` directory and save them in JSON
+# format.
 
 import csv
 import pandas as pd
 
 from pathlib import Path
-from unidecode import unidecode
 
 cv_path = "~/tensorflow_datasets/manual/common-voice/en"
 cv_path = Path(cv_path).expanduser()
@@ -23,16 +17,7 @@ tsv_names = [ "dev.tsv", "test.tsv", "train.tsv" ]
 
 audio_path = cv_path / "audio"
 
-remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
-
 max_size = 680000 # 21.25s @ 16kHz, 16-bit
-
-def clean(sentence):
-    sentence = unidecode(sentence)
-    sentence = sentence.strip()
-    sentence = sentence.lower()
-    sentence = sentence.translate(remove_table)
-    return sentence
 
 def read_data(tsv_path):
     rows = []
@@ -41,8 +26,7 @@ def read_data(tsv_path):
         for row in csv.DictReader(file, delimiter="\t"):
 
             name = Path(row["path"]).with_suffix(".wav")
-            original = row["sentence"]
-            sentence = clean(original)
+            label = row["sentence"]
 
             path = audio_path / name
             if not path.exists():
@@ -54,10 +38,7 @@ def read_data(tsv_path):
                     errors.append("Long file: " + str(path))
 
                 else: rows.append({
-                    "path"    : str(name),
-                    "size"    : size,
-                    "sentence": sentence,
-                    "original": original,
+                    "path" : str(name), "size" : size, "label": label,
                 })
 
     return rows, errors
