@@ -16,7 +16,7 @@ _attrs = [
 ]
 
 def __dir__():
-    return sorted(globals().keys() + _attrs)
+    return sorted(list(globals().keys()) + _attrs)
 
 def __getattr__(name):
     if name in _attrs:
