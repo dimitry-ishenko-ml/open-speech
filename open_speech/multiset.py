@@ -5,9 +5,14 @@ class MultiSet:
     """Represents collections of datasets"""
 
     def __init__(self, datasets):
+        self._datasets = datasets
+
         self.train = MultiSplit([ ds.train for ds in datasets ], "train")
         self.test  = MultiSplit([ ds.test  for ds in datasets ], "test" )
         self.valid = MultiSplit([ ds.valid for ds in datasets ], "valid")
+
+    def __iter__(self):
+        for dataset in self._datasets: yield dataset
 
     @property
     def sample_rate(self):
