@@ -58,7 +58,7 @@ def clean_label(label):
     """Clean label.
 
     - Convert to lower case.
-    - Strip punctuation except for `'` (apostrophe);
+    - Strip punctuation except for apostrophe (').
     - Where possible, convert unicode characters their ASCII equivalents.
     """
 
