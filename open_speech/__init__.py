@@ -1,6 +1,6 @@
 from .dataset import DataSet
 from .multiset import MultiSet
-from .util import AUTOTUNE, parse_example, clean_label
+from .util import AUTOTUNE, parse_example, lookup_table, clean_label
 
 common_voice = DataSet(path="gs://open-speech/v5.0/common-voice/en", name="common_voice")
 voxforge     = DataSet(path="gs://open-speech/v5.0/voxforge/en"    , name="voxforge"    )

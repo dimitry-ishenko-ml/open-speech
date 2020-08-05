@@ -28,7 +28,7 @@ def get_dataset(files, num_parallel_reads):
     return dataset.with_options(options)
 
 def parse_example(example):
-    """Parse serialized example and extract audio and UUID data from it"""
+    """Parses serialized example and extracts audio and UUID"""
 
     data = _tf.io.parse_single_example(serialized=example, features={
         "uuid": _tf.io.FixedLenFeature([], _tf.string),
@@ -38,6 +38,19 @@ def parse_example(example):
     audio = _tf.sparse.to_dense(data["audio"])
 
     return uuid, audio
+
+class lookup_table:
+    """Creates hash table to look up labels from their UUID"""
+
+    def __init__(self, labels):
+        self._table = _tf.lookup.StaticHashTable(
+            _tf.lookup.KeyValueTensorInitializer(
+                keys=list(labels.keys()), values=list(labels.values())
+            ), ""
+        )
+
+    def __call__(self, uuid, audio):
+        return self._table.lookup(uuid), audio
 
 _remove_table = str.maketrans("", "", "!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~")
 
