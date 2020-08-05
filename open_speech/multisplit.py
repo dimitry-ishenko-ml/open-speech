@@ -2,11 +2,13 @@ from .datasplit import DataSplit
 from .util import *
 
 class MultiSplit:
-    """Represents data split (eg, training, validation or test) in multiple
-    datasets.
+    """Collection of data splits in multiple datasets.
+
+    `MultiSplit` contains a number of `DataSplit` instances and acts as a single
+    data split (training, validation or test) within a `MultiSet`.
 
     Attributes:
-        name: name of the data split
+        name: Name of the split.
     """
 
     def __init__(self, splits, name):
@@ -15,33 +17,58 @@ class MultiSplit:
 
     @property
     def sample_rate(self):
-        """Returns sample rate of audio data"""
+        """Returns audio sample rate."""
+
         sample_rate = self._splits[0].sample_rate
         assert all([ sample_rate == split.sample_rate for split in self._splits ])
         return sample_rate
 
     @property
     def dtype(self):
-        """Returns type of audio data samples"""
+        """Returns data type of audio samples."""
+
         dtype = self._splits[0].dtype
         assert all([ dtype == split.dtype for split in self._splits ])
         return dtype
 
     @property
     def files(self):
-        """Returns list of files comprising the data split"""
+        """Returns list of `TFRecord` files comprising the split."""
+
         return [ file for split in self._splits for file in split.files ]
-
-    def get_dataset(self, num_parallel_reads=AUTOTUNE):
-        """Returns TFRecordDataset of audio data and UUID of matching labels"""
-        return get_dataset(self.files, num_parallel_reads)
-
-    @property
-    def dataset(self):
-        """Returns TFRecordDataset of audio data and UUID of matching labels"""
-        return self.get_dataset()
 
     @property
     def labels(self):
-        """Returns dictionary of labels in the form "UUID": "text" """
+        """Returns `dict` of labels in the form "uuid": "label"."""
+
         return { uuid: text for split in self._splits for uuid, text in split.labels.items() }
+
+    def get_recordset(self, num_parallel_reads=AUTOTUNE):
+        """Returns recordset for this split (see `MultiSplit.recordset`)."""
+
+        return get_recordset(self.files, num_parallel_reads)
+
+    @property
+    def recordset(self):
+        """Returns recordset for this split.
+
+        Recordset is an instance of `tf.data.TFRecordDataset` containing uuids and
+        audio data in serialized form.
+
+        Use `parse_serial` to extract (uuid, audio) tuples and `lookup_table` to
+        translate uuids into labels.
+
+        Example:
+
+        train = open_speech.datasets.train # instance of MultiSplit
+        table = lookup_table(train.labels)
+
+        ds = train.recordset
+        ds = ds.map(parse_serial) # serial -> (uuid, audio)
+        ds = ds.map(lambda uuid, audio: (audio, table.lookup(uuid))) # (uuid, audio) -> (audio, label)
+
+        Returns:
+            An instance of `tf.data.TFRecordDataset`.
+        """
+
+        return self.get_recordset()
