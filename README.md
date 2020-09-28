@@ -15,7 +15,7 @@ Datasets have been pre-processed as follows:
 
 ## Usage examples
 
-`open-speech` can either be used as one large dataset or individual datasets can
+`open-speech` can be used as either one large dataset or individual datasets can
 be accessed and used on their own.
 
 ### Get data on each dataset:
@@ -24,6 +24,7 @@ be accessed and used on their own.
 import open_speech
 
 for dataset in open_speech.datasets:
+
     print("         name:", dataset.name)
     print("  sample_rate:", dataset.sample_rate)
     print("        dtype:", dataset.dtype)
@@ -33,6 +34,26 @@ for dataset in open_speech.datasets:
         "valid=", len(dataset.valid_labels), "test=", len(dataset.test_labels)
     )
     print()
+```
+Output:
+```
+         name: common_voice
+  sample_rate: 16000
+        dtype: <dtype: 'float32'>
+   # of files: 631
+# of examples: train= 435943 valid= 16028 test= 16012
+
+         name: voxforge
+  sample_rate: 16000
+        dtype: <dtype: 'float32'>
+   # of files: 108
+# of examples: train= 76348 valid= 9534 test= 9553
+
+         name: librispeech
+  sample_rate: 16000
+        dtype: <dtype: 'float32'>
+   # of files: 450
+# of examples: train= 132542 valid= 2661 test= 2558
 ```
 
 ### Use entire collection as one large dataset:
@@ -51,7 +72,7 @@ print("# of examples:",
 print()
 
 # get a clean set of labels:
-#    - convert unicode characters their ascii equivalents
+#    - convert unicode characters to their ascii equivalents
 #    - strip leading and trailing whitespace
 #    - convert to lower case
 #    - strip all punctuation except for the apostrophe (')
@@ -75,7 +96,7 @@ def transform(dataset):
 
     # use open_speech.lookup_table to look up and replace uuids
     # with corresponding labels
-    table = open_speech.lookup_table(open_speech.labels)
+    table = open_speech.lookup_table(clean_labels)
     dataset = dataset.map(lambda uuid, audio: (audio, table.lookup(uuid)))
 
     # ... do something ...
@@ -94,6 +115,18 @@ test_dataset = transform( open_speech.test_recordset )
 loss, metrics = model.evaluate(x=test_dataset,
     # ... other parameters ...
 )
+```
+Output:
+```
+  sample_rate: 16000
+        dtype: <dtype: 'float32'>
+   # of files: 1189
+# of examples: train= 644833 valid= 28223 test= 28123
+
+alphabet: [' ', "'", '0', '1', '2', '3', '4', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+longest sentence: 398 chars
+
+...
 ```
 
 ### Use individual dataset
@@ -127,6 +160,14 @@ valid_dataset = transform( common_voice.valid_recordset )
 hist = model.fit(x=train_dataset, validation_data=valid_dataset,
     # ... other parameters ...
 )
+```
+Output:
+```
+name: common_voice
+sample_rate: 16000
+dtype: <dtype: 'float32'>
+
+...
 ```
 
 ## Authors
