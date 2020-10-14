@@ -67,9 +67,9 @@ from .dataset import DataSet
 from .multiset import MultiSet
 from .util import AUTOTUNE, parse_serial, lookup_table, clean
 
-common_voice = DataSet(path="gs://open-speech/v5.0/common-voice/en", name="common_voice")
-voxforge     = DataSet(path="gs://open-speech/v5.0/voxforge/en"    , name="voxforge"    )
-librispeech  = DataSet(path="gs://open-speech/v5.0/librispeech/en" , name="librispeech" )
+common_voice = DataSet(path="gs://open-speech-v5/common-voice/en", name="common_voice")
+voxforge     = DataSet(path="gs://open-speech-v5/voxforge/en"    , name="voxforge"    )
+librispeech  = DataSet(path="gs://open-speech-v5/librispeech/en" , name="librispeech" )
 
 datasets = MultiSet([ common_voice, voxforge, librispeech ])
 
