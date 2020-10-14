@@ -13,6 +13,12 @@ Datasets have been pre-processed as follows:
 - Audio files longer than 68kB (~21.25 seconds) have been discarded.
 - Data has been sharded into ~256MB TFRecord files.
 
+If you find this project useful, please consider a small donation to help me pay for data storage: 
+
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SF5AXLYBGE9FW&currency_code=USD">
+    <img src="https://raw.githubusercontent.com/dimitry-ishenko-ml/open-speech/master/donate.png" alt="Donate with PayPal" width="25%" />
+</a>
+
 ## Usage examples
 
 `open-speech` can be used as either one large dataset or individual datasets can
